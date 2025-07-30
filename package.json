@@ -1,0 +1,14 @@
+{
+  "name": "tg-feed-smart-tech-server",
+  "version": "1.0.0",
+  "description": "Express server for Telegram RSS feed",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "author": "Вайрлон",
+  "license": "MIT"
+}
