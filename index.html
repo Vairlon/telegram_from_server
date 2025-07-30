@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посты из Telegram</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .post {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eaeaea;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .post-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .post-header .channel-info {
+            font-size: 1em;
+            font-weight: 600;
+            color: #555555;
+        }
+
+        .post-header .channel-info span {
+            color: #888888;
+            font-size: 0.9em;
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .post-content {
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        .post-content img {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #eaeaea;
+        }
+
+        .link {
+            color: #007aff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="rss-feed">Загрузка постов...</div>
+
+<script type="text/javascript">
+    fetch("https://wtf.roflcopter.fr/rss-bridge/?action=display&bridge=TelegramBridge&username=%40smart_tech_novosti&format=Atom")
+        .then(response => response.text())
+        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        .then(data => {
+            const items = data.querySelectorAll("entry");
+            let html = "";
+            items.forEach(el => {
+                let title = el.querySelector("title")?.textContent || "";
+                let link = el.querySelector("link")?.getAttribute("href") || "#";
+                let published = el.querySelector("published")?.textContent || "";
+                let content = el.querySelector("content")?.textContent || "";
+                let imageUrl = el.querySelector("media\\:content, img")?.getAttribute("url") || '';
+
+                if (/channel created/i.test(content.trim())) return;
+
+                let date = new Date(published);
+                let formattedDate = date.toLocaleDateString("ru-RU", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }).replace(' г.', 'г.');
+
+                html += `
+                    <div class="post">
+                        <div class="post-header">
+                            <img src="https://telegram.org/img/t_logo.png" alt="Channel Avatar">
+                            <div class="channel-info">
+                                @smart_tech_novosti
+                                <span>${formattedDate}</span>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            ${imageUrl ? `<img src="${imageUrl}" alt="Post Image">` : ''}
+                            ${content}
+                            <br><br>
+                            <a href="${link}" target="_blank" class="link">Читать в Telegram</a>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById("rss-feed").innerHTML = html || "Постов не найдено.";
+        })
+        .catch(error => {
+            document.getElementById("rss-feed").innerHTML = "Ошибка загрузки: " + error;
+        });
+</script>
+
+</body>
+</html>
